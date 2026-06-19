@@ -1,21 +1,21 @@
+import { Link } from "expo-router";
 import React, { useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-  Alert,
-  ActivityIndicator,
-} from "react-native";
-import { supabase } from "../../lib/supabase";
-import { Colors } from "../../constants/Colors";
+import { ActivityIndicator, Alert, ScrollView, Text, TextInput, View } from "react-native";
+import { ActionButton } from "@/components/ui/action-button";
+import { GlassCard } from "@/components/ui/glass-card";
+import { Colors } from "@/constants/Colors";
+import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleLogin() {
+    if (!isSupabaseConfigured) {
+      Alert.alert("Modo demo ativo", "Configure o Supabase no .env para ativar login real.");
+      return;
+    }
+
     if (!email) {
       Alert.alert("Erro", "Por favor, insira um e-mail válido.");
       return;
@@ -31,164 +31,67 @@ export default function LoginScreen() {
     });
 
     if (error) {
-      Alert.alert("Erro na Autenticação", error.message);
+      Alert.alert("Erro na autenticação", error.message);
     } else {
-      Alert.alert(
-        "Sucesso! 🚀",
-        "Verifique sua caixa de entrada para acessar o app!",
-      );
+      Alert.alert("Sucesso!", "Verifique sua caixa de entrada para acessar o app.");
     }
+
     setLoading(false);
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.logoContainer}>
-        <Text style={styles.logoTitle}>PartyClub</Text>
-        <Text style={styles.logoSubtitle}>AQUI A FESTA NUNCA TERMINA</Text>
+    <ScrollView
+      contentInsetAdjustmentBehavior="automatic"
+      style={{ flex: 1, backgroundColor: Colors.background }}
+      contentContainerStyle={{ flexGrow: 1, justifyContent: "center", gap: 28, padding: 24 }}
+    >
+      <View style={{ gap: 8 }}>
+        <Text selectable style={{ color: Colors.ink, fontSize: 48, fontWeight: "900" }}>
+          PartyClub
+        </Text>
+        <Text selectable style={{ color: Colors.primarySoft, fontSize: 13, fontWeight: "900", letterSpacing: 2 }}>
+          AQUI A EXPERIÊNCIA É DIGITAL
+        </Text>
       </View>
 
-      <View style={styles.formContainer}>
-        <Text style={styles.title}>Crie sua conta</Text>
-        <Text style={styles.subtitle}>
-          Entre com o seu email para se registrar no app
-        </Text>
+      <GlassCard style={{ gap: 18 }}>
+        <View style={{ gap: 6 }}>
+          <Text selectable style={{ color: Colors.ink, fontSize: 24, fontWeight: "900" }}>
+            Crie sua conta
+          </Text>
+          <Text selectable style={{ color: Colors.muted, lineHeight: 20 }}>
+            Entre por magic link ou explore o modo demo para ver o portfólio completo.
+          </Text>
+        </View>
 
         <TextInput
-          style={styles.input}
+          style={{
+            backgroundColor: Colors.surfaceStrong,
+            borderColor: Colors.border,
+            borderRadius: 16,
+            borderWidth: 1,
+            color: Colors.ink,
+            fontSize: 16,
+            padding: 16,
+          }}
           placeholder="partyclub@gmail.com"
-          placeholderTextColor="#666"
+          placeholderTextColor={Colors.muted}
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
           keyboardType="email-address"
         />
 
-        <TouchableOpacity
-          style={styles.buttonPrimary}
-          onPress={handleLogin}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#FFF" />
-          ) : (
-            <Text style={styles.buttonText}>Continue</Text>
-          )}
-        </TouchableOpacity>
+        {loading ? <ActivityIndicator color={Colors.primarySoft} /> : <ActionButton label="Enviar magic link" onPress={handleLogin} />}
 
-        <Text style={styles.dividerText}>ou</Text>
+        <Link href="/(tabs)" asChild>
+          <ActionButton label="Entrar no modo demo" tone="ghost" />
+        </Link>
 
-        <TouchableOpacity
-          style={styles.buttonSocial}
-          onPress={() =>
-            Alert.alert("Mock", "Login com Google integrado em breve")
-          }
-        >
-          <Text style={styles.buttonSocialText}>Continue com o Google</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.buttonSocial}
-          onPress={() =>
-            Alert.alert("Mock", "Login com Apple integrado em breve")
-          }
-        >
-          <Text style={styles.buttonSocialText}>Continue com a Apple</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.footerText}>
-          Ao clicar em criar conta, você aceita os nossos Termos de Serviço e
-          Política de Privacidade
+        <Text selectable style={{ color: Colors.muted, fontSize: 12, lineHeight: 18, textAlign: "center" }}>
+          Ao criar conta, você aceita os Termos de Serviço e a Política de Privacidade do PartyClub.
         </Text>
-      </View>
-    </View>
+      </GlassCard>
+    </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#0D0D13",
-    padding: 24,
-    justifyContent: "center",
-  },
-  logoContainer: {
-    alignItems: "center",
-    marginBottom: 40,
-  },
-  logoTitle: {
-    fontSize: 42,
-    fontWeight: "bold",
-    color: "#FFF",
-  },
-  logoSubtitle: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#7B2CBF",
-    letterSpacing: 2,
-    marginTop: 5,
-  },
-  formContainer: {
-    width: "100%",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#FFF",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: "#AAA",
-    marginBottom: 24,
-  },
-  input: {
-    backgroundColor: "#1A1A24",
-    color: "#FFF",
-    padding: 16,
-    borderRadius: 12,
-    fontSize: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: "#333",
-  },
-  buttonPrimary: {
-    backgroundColor: "#7B2CBF",
-    padding: 16,
-    borderRadius: 12,
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  buttonText: {
-    color: "#FFF",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  dividerText: {
-    color: "#666",
-    textAlign: "center",
-    marginVertical: 12,
-    fontSize: 14,
-  },
-  buttonSocial: {
-    backgroundColor: "#1A1A24",
-    padding: 16,
-    borderRadius: 12,
-    alignItems: "center",
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: "#333",
-  },
-  buttonSocialText: {
-    color: "#FFF",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  footerText: {
-    color: "#555",
-    fontSize: 11,
-    textAlign: "center",
-    marginTop: 20,
-    lineHeight: 16,
-  },
-});

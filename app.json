@@ -1,4 +1,27 @@
 {
-  "name": "partyclub",
-  "slug": "partyclub"
+  "expo": {
+    "name": "PartyClub",
+    "slug": "partyclub",
+    "scheme": "partyclub",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "plugins": ["expo-router", "expo-sqlite"],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "android": {
+      "package": "com.pedro.partyclub",
+      "adaptiveIcon": {
+        "backgroundColor": "#0D0D13"
+      }
+    },
+    "ios": {
+      "bundleIdentifier": "com.pedro.partyclub"
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
 }
